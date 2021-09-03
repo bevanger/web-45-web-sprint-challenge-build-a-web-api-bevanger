@@ -24,7 +24,7 @@ function validateAction(req, res, next) {
 }
 
 function validateUpdatedAction(req, res, next) {
-    if(!req.body.notes || !req.body.description || !req.body.completed || !req.body.project_id) {
+    if(!req.body.notes || !req.body.description || !req.body.project_id) {
         next({ message: 'missing name, description,completed or project_id field', status: 400})
     } else {
         next()
