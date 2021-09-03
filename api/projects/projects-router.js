@@ -1,7 +1,7 @@
 // Write your "projects" router here!
 const express = require('express');
 
-const { validateProjectID } = require('./projects-middleware');
+const { validateProjectID, validateProject, validateUpdatedProject } = require('./projects-middleware');
 const Projects = require('./projects-model');
 
 const router = express.Router();
@@ -18,16 +18,36 @@ router.get('/:id', validateProjectID, (req, res, next) => {
     res.status(200).json(req.project)
 });
 
-router.post('/', (req, res, next) => {
-    res.status(200).json({ message: 'Returns the newly created project as the body of the response'})
+router.post('/', validateProject, (req, res, next) => {
+    const required = req.body
+    Projects.insert(required)
+        .then(newProject => {
+            res.status(201).json(newProject)
+        })
+        .catch(next)
 });
 
-router.put('/:id', (req, res, next) => {
-    res.status(200).json({ message: 'Returns the updated project as the body of the response' })
+router.put('/:id', validateProjectID, validateUpdatedProject, (req, res, next) => {
+    const { id } = req.params;
+    const changes = req.body;
+    Projects.update(id, changes)
+        .then(updatedProject => {
+            res.status(200).json(updatedProject)
+        })
+        .catch(next)
 });
 
-router.delete('/:id', (req, res, next) => {
-    res.status(200).json({ message: 'Returns no response body' })
+router.delete('/:id', validateProjectID, (req, res, next) => {
+   const { id } = req.params;
+   Projects.remove(id)
+    .then((success) => {
+        if(success){
+            res.status(200)
+        } else{
+            res.status(404).json({ message: 'The project has been deleted'})
+        }
+    })
+    .catch(next)
 });
 
 router.get('/:id/actions', (req, res, next) => {
