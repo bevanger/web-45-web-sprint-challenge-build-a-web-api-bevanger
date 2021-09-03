@@ -42,7 +42,7 @@ router.delete('/:id', validateProjectID, (req, res, next) => {
    Projects.remove(id)
     .then((success) => {
         if(success){
-            res.status(200)
+            res.json(success)
         } else{
             res.status(404).json({ message: 'The project has been deleted'})
         }
@@ -50,8 +50,8 @@ router.delete('/:id', validateProjectID, (req, res, next) => {
     .catch(next)
 });
 
-router.get('/:id/actions', (req, res, next) => {
-    res.status(200).json({ message: 'Returns an array of actions (could be empty) belonging to a project with the given `id`'})
+router.get('/:id/actions', validateProjectID, (req, res, next) => {
+    
 });
 
 router.use((err, req, res, next) => {
