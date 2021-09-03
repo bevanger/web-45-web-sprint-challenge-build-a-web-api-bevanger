@@ -51,7 +51,12 @@ router.delete('/:id', validateProjectID, (req, res, next) => {
 });
 
 router.get('/:id/actions', validateProjectID, (req, res, next) => {
-    
+    const { id } = req.params
+    Projects.getProjectActions(id)
+        .then(projectActions => {
+            res.status(200).json(projectActions)
+        })
+        .catch(next)
 });
 
 router.use((err, req, res, next) => {
