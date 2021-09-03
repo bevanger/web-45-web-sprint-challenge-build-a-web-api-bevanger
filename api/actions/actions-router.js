@@ -1,26 +1,59 @@
 // Write your "actions" router here!
 const express = require('express');
 
+const { validateActionId, validateAction, validateUpdatedAction } = require('./actions-middlware');
+const Actions = require('./actions-model');
+
 const router = express.Router();
 
 router.get('/', (req, res, next) => {
-    res.status(200).json({ message: 'Returns an array of actions (or an empty array) as the body of the response' })
+    const noActions = []
+    Actions.get()
+        .then((actions) => {
+        if(actions) {
+            res.status(200).json(actions)
+        } else {
+            res.status(404).json(noActions)
+        }
+        })
+        .catch(next)
 });
 
-router.get('/:id', (req, res, next) => {
-    res.status(200).json({ message: 'Returns an action with the given `id` as the body of the response' })
+router.get('/:id', validateActionId, (req, res, next) => {
+    res.status(200).json(req.action)
 });
 
-router.post('/', (req, res, next) => {
-    res.status(200).json({ message: 'Returns the newly created action as the body of the response' })
+router.post('/', validateAction, (req, res, next) => {
+    const required = req.body
+    Actions.insert(required)
+        .then(newAction => {
+            res.status(201).json(newAction)
+        })
+        .catch(next)
 });
 
-router.put('/:id', (req, res, next) =>  {
-    res.status(200).json({ message: 'Returns the updated action as the body of the response'})
+router.put('/:id', validateUpdatedAction, (req, res, next) =>  {
+    const { id } = req.params;
+    const changes = req.body;
+    Actions.update(id, changes)
+        .then(updatedAction => {
+            res.status(200).json(updatedAction)
+        })
+        .catch(next)
 });
 
-router.delete('/:id', (req, res, next) => {
-    res.status(200).json({ message: 'Returns no response body'})
+
+router.delete('/:id', validateActionId, (req, res, next) => {
+    const { id } = req.params;
+   Actions.remove(id)
+    .then((success) => {
+        if(success){
+            res.json(success)
+        } else{
+            res.status(404).json({ message: 'The action has been deleted'})
+        }
+    })
+    .catch(next)
 });
 
 router.use((err, req, res, next) => {

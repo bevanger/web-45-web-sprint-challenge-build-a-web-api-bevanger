@@ -1,6 +1,4 @@
 // add middlewares here related to projects
-const e = require('express');
-const { NotificationCenter } = require('node-notifier');
 const Projects = require('./projects-model');
 
 function validateProjectID(req, res, next) {
